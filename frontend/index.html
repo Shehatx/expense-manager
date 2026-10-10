@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Folio — Expense Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,460;9..144,560&family=Outfit:wght@340;460;560&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='22' width='100' height='100' fill='%23171614'/><text y='.72em' x='18' font-size='72' fill='%23e4c48a'>F</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">
+        <span class="mark">F</span>
+        <div>
+          <strong>Folio</strong>
+          <small>Personal ledger</small>
+        </div>
+      </div>
+      <nav>
+        <button class="nav active" data-view="overview">Overview</button>
+        <button class="nav" data-view="ledger">Ledger</button>
+        <button class="nav" data-view="wallets">Wallets</button>
+      </nav>
+      <p class="rail-note">Cash and card stay in sync with every expense you record, edit, or remove.</p>
+    </aside>
+
+    <main>
+      <header class="top">
+        <div>
+          <p class="eyebrow" id="greeting">Good day</p>
+          <h1 id="page-title">Overview</h1>
+        </div>
+        <button class="primary" id="open-expense" type="button">Record expense</button>
+      </header>
+
+      <section id="view-overview" class="view">
+        <section class="hero">
+          <div>
+            <p class="label">Available</p>
+            <p class="balance" id="total">$0.00</p>
+            <p class="sub" id="month-line">Nothing spent this month yet.</p>
+          </div>
+          <div class="split">
+            <article class="wallet cash">
+              <p class="label">Cash</p>
+              <p class="figure" id="cash">$0.00</p>
+              <p class="hint" id="cash-month">$0.00 spent this month</p>
+            </article>
+            <article class="wallet card">
+              <p class="label">Credit card</p>
+              <p class="figure" id="credit">$0.00</p>
+              <p class="hint" id="credit-month">$0.00 spent this month</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="grid">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>This month</h2>
+              <span id="month-total" class="chip">$0.00</span>
+            </div>
+            <div class="chart-row">
+              <div class="donut" id="donut" aria-hidden="true"></div>
+              <ul class="legend" id="legend"></ul>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Last 14 days</h2>
+            </div>
+            <div class="bars" id="bars"></div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Recent movement</h2>
+          </div>
+          <ul class="activity" id="activity"></ul>
+        </section>
+      </section>
+
+      <section id="view-ledger" class="view hidden">
+        <form class="filters" id="filters">
+          <input type="search" id="search" placeholder="Search notes" />
+          <select id="filter-category">
+            <option value="">All categories</option>
+          </select>
+          <select id="filter-method">
+            <option value="">Cash and card</option>
+            <option value="cash">Cash</option>
+            <option value="credit">Credit card</option>
+          </select>
+        </form>
+        <div class="ledger" id="ledger"></div>
+      </section>
+
+      <section id="view-wallets" class="view hidden">
+        <div class="wallet-tools">
+          <form class="panel form" id="adjust-form">
+            <h2>Adjust a balance</h2>
+            <p class="help">Add money, take money out, or set the exact amount on cash or the card.</p>
+            <label>Account
+              <select name="account">
+                <option value="cash">Cash</option>
+                <option value="credit">Credit card</option>
+              </select>
+            </label>
+            <label>Action
+              <select name="action">
+                <option value="add">Add</option>
+                <option value="subtract">Remove</option>
+                <option value="set">Set exact amount</option>
+              </select>
+            </label>
+            <label>Amount
+              <input name="amount" type="number" min="0" step="0.01" placeholder="0.00" required />
+            </label>
+            <label>Note
+              <input name="note" type="text" maxlength="180" placeholder="Payday, ATM, payment…" />
+            </label>
+            <button class="primary" type="submit">Update balance</button>
+          </form>
+
+          <form class="panel form" id="transfer-form">
+            <h2>Move between accounts</h2>
+            <p class="help">Shift available money from cash onto the card, or the other way around.</p>
+            <label>From
+              <select name="source">
+                <option value="cash">Cash</option>
+                <option value="credit">Credit card</option>
+              </select>
+            </label>
+            <label>Amount
+              <input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+            </label>
+            <label>Note
+              <input name="note" type="text" maxlength="180" placeholder="Card payment, withdrawal…" />
+            </label>
+            <button class="primary" type="submit">Transfer</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="expense-dialog">
+    <form id="expense-form" method="dialog">
+      <div class="dialog-head">
+        <h2 id="dialog-title">Record expense</h2>
+        <button type="button" class="ghost" id="close-dialog" aria-label="Close">Close</button>
+      </div>
+      <input type="hidden" name="id" />
+      <label>Amount
+        <input name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00" />
+      </label>
+      <fieldset>
+        <legend>Category</legend>
+        <div class="chips" id="category-chips"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Pay with</legend>
+        <div class="methods">
+          <label class="method"><input type="radio" name="method" value="cash" checked /> Cash</label>
+          <label class="method"><input type="radio" name="method" value="credit" /> Credit card</label>
+        </div>
+      </fieldset>
+      <label>Date
+        <input name="spent_on" type="date" required />
+      </label>
+      <label>Note
+        <input name="note" type="text" maxlength="180" placeholder="Coffee, rent, train…" />
+      </label>
+      <div class="dialog-actions">
+        <button class="primary" type="submit" id="save-expense">Save expense</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
